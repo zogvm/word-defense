@@ -110,8 +110,8 @@ function renderHome() {
     const b = getBest(l.id);
     const battle = l.words.filter(w => !w.learnOnly), extra = l.words.length - battle.length;
     const uniq = [...new Map(battle.map(w => [w.group, w])).values()];
-    const pics = UNIT ? uniq.map(w => `<span>${wordPic(w)}</span>`).join('')
-      : uniq.slice(0, 9).map(w => w.pic.startsWith('color:') ? '🎨' : w.pic.startsWith('num:') ? '🔢' : w.pic).join('');
+    const pics = UNIT ? uniq.map(w => `<span>${wordPic(w, 2)}</span>`).join('')
+      : uniq.slice(0, 9).map(w => wordZh(w, 2)).join('');
     return `<div class="lv"><div class="top"><div class="no ${l.id === 'all' ? 'all' : ''}">${l.no}</div>
       <div class="nm">${l.id === 'all' ? '' : 'Unit ' + l.no + ' '}${l.en}<small>${l.zh} · ${battle.length} 个词${extra ? ' + ' + extra + ' 个认读词' : ''}</small></div>
       <div class="stars emo">${'⭐'.repeat(b)}${'<span style="opacity:.25">⭐</span>'.repeat(3 - b)}</div></div>
@@ -136,7 +136,7 @@ function showLearn(l, advancing = false) {
   preload(l.words);
   const tile = (w, i) => `<button class="tile" data-i="${i}"><span class="p">${wordPic(w)}</span><b>${w.w}</b><small>${w.zh}</small>${w.learnOnly ? '<span class="tag">认读</span>' : ''}</button>`;
   const idx = l.words.map((w, i) => i), kin = idx.filter(i => KIN.has(l.words[i].w)), rest = idx.filter(i => !KIN.has(l.words[i].w));
-  modal(`<h2>${advancing ? '下一关 · 先认一认' : '先认一认'}</h2><p class="sub">看单词、看图、点一下听读音${l.words.some(w => w.learnOnly) ? '（灰标的词只认读，不上战场）' : ''}</p>
+  modal(`<h2>${advancing ? '下一关 · 先认一认' : '先认一认'}</h2><p class="sub">看单词、看中文、点一下听读音${l.words.some(w => w.learnOnly) ? '（灰标的词只认读，不上战场）' : ''}</p>
     <div class="tiles">${rest.map(i => tile(l.words[i], i)).join('')}</div>
     ${kin.length ? `<div class="kin"><h3>看家谱认亲戚</h3>
       <div class="legend"><span>${LEGEND.gold}金圈 = 这个词</span><span>${LEGEND.me}红虚线圈 = 我</span></div>
@@ -211,7 +211,7 @@ function layout() {
 }
 window.addEventListener('resize', layout);
 function placeCart(c) { c.el.style.fontSize = Math.min(G.lh * .5, G.W * .05) + 'px'; c.el.style.left = (c.x / 100 * G.W) + 'px'; c.el.style.top = ((c.lane + .5) * G.lh) + 'px'; }
-const turHTML = w => `<div class="badge">${wordPic(w)}</div><div class="hd"></div><div class="st"></div><div class="lf a"></div><div class="lf b"></div>`;
+const turHTML = w => `<div class="badge">${wordPic(w, 2)}</div><div class="hd"></div><div class="st"></div><div class="lf a"></div><div class="lf b"></div>`;
 function sizeTur(el) { el.style.fontSize = G.ts + 'px'; el.style.setProperty('--bs', G.bs + 'px'); }
 
 /* ---------- 传送带 ---------- */
@@ -233,7 +233,7 @@ function makeCard() {
     G.sinceNeed++;
   }
   const el = document.createElement('div'); el.className = 'card';
-  el.innerHTML = `<span class="p">${wordPic(w)}</span><span class="sp"></span>`;
+  el.innerHTML = `<span class="p">${wordPic(w, 2)}</span><span class="sp"></span>`;
   el.style.width = G.cw + 'px'; el.style.height = G.cw + 'px'; el.querySelector('.p').style.fontSize = (G.cw * .62) + 'px';
   const c = { word: w, x: G.bw + 4, el, born: G.t };
   el.style.left = c.x + 'px';
@@ -345,7 +345,7 @@ function giveHint(m) {
   let c = G.cards.filter(c => c.word.group === m.word.group).sort((a, b) => mid(a) - mid(b))[0];
   if (!c) {
     const free = G.cards.filter(x => !(pick && pick.card === x) && x.x < G.bw - G.cw * .5).sort((a, b) => mid(a) - mid(b));
-    if (free.length) { c = free[0]; c.word = m.word; c.born = G.t; c.el.classList.remove('dying'); c.el.querySelector('.p').innerHTML = wordPic(m.word); }
+    if (free.length) { c = free[0]; c.word = m.word; c.born = G.t; c.el.classList.remove('dying'); c.el.querySelector('.p').innerHTML = wordPic(m.word, 2); }
     else { G.hintWant = m; G.forceWord = m.word; G.cardAt = Math.min(G.cardAt, G.t); return; }
   }
   showHint(c, m);

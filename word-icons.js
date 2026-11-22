@@ -853,7 +853,17 @@ const wordIcons = {
   "felt": "💗",
   "woke": "⏰"
 };
-function wordPic(word) {
-  const icon = wordIcons[(word.id || word.w).trim().toLowerCase()] || word.pic;
-  return icon.startsWith("<svg") ? icon : picHTML(icon);
+function escapeHtml(text) {
+  return String(text).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 }
+function wordZh(word, maxChars = 4) {
+  let text = String((word && word.zh) || (word && word.w) || '').trim();
+  text = text.replace(/（[^）]*）/g, '').replace(/\([^)]*\)/g, '');
+  text = text.split(/[；;，,、]/)[0].replace(/[…\.]+/g, '').trim();
+  if (!text) text = '词';
+  return escapeHtml(text.length > maxChars ? text.slice(0, maxChars) + '…' : text);
+}
+function wordPic(word, maxChars = 4) {
+  return `<span class="zh-pic">${wordZh(word, maxChars)}</span>`;
+}
+window.wordZh = wordZh;
